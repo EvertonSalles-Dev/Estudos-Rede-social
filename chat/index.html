@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pulsa — sua rede, seu ritmo</title>
+<title>skin CARE— sua rede, seu ritmo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
@@ -12,7 +12,7 @@
 
 <!-- ============ TOPBAR ============ -->
 <div class="topbar">
-  <div class="logo"><span class="dot"></span>Malware</div>
+  <div class="logo"><span class="dot"></span>SKIN CARE</div>
   <div class="search">
     <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input placeholder="Buscar pessoas, posts ou #tendências">
@@ -88,10 +88,35 @@
 
     <!-- VIEW: REELS -->
     <section class="view" id="view-reels">
+      <div class="reels-compose card">
+        <div class="reels-compose-head">
+          <div>
+            <h3>Publicar Reel</h3>
+            <p>Envie um vídeo e adicione uma legenda (opcional).</p>
+          </div>
+        </div>
+
+        <div class="reels-compose-body">
+          <label class="file-picker">
+            <span class="file-picker-icon">📹</span>
+            <span class="file-picker-text">Escolher vídeo</span>
+            <input id="reelMedia" type="file" accept="video/*" hidden />
+          </label>
+
+          <textarea id="reelText" class="reel-text" placeholder="Legenda do seu reel... (opcional)"></textarea>
+        </div>
+
+        <div class="reels-compose-actions">
+          <button class="btn-ghost" onclick="clearReelsComposer()">Limpar</button>
+          <button class="btn-primary" onclick="publishReelFromComposer()">Publicar nos Reels</button>
+        </div>
+      </div>
+
       <div class="reels-wrap">
         <div class="reel-scroll" id="reelScroll"></div>
       </div>
     </section>
+
 
     <!-- VIEW: PERFIL -->
     <section class="view" id="view-profile">
@@ -188,6 +213,7 @@
   <div class="msg-input">
     <input id="msgInput" placeholder="Escreva uma mensagem..." onkeydown="if(event.key==='Enter')sendMessage()">
     <button onclick="sendMessage()">Enviar</button>
+    <button onclick="quickChatReply()" class="btn-quick" title="Responder como se fosse humano">↩︎</button>
   </div>
 </div>
 
@@ -195,7 +221,10 @@
 <div class="overlay" id="postModal">
   <div class="card modal">
     <h3>Criar publicação</h3>
-    <textarea id="postText" placeholder="Compartilhe algo com sua rede..."></textarea>
+    <textarea id="postText" placeholder="Compartilhe algo com sua rede... (pode deixar vazio se enviar mídia)"></textarea>
+    <div style="display:flex; gap:10px; margin-top:12px;">
+      <input id="postMedia" type="file" accept="image/*,video/*" style="flex:1; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:10px; color:var(--text);" />
+    </div>
     <div class="row">
       <button class="btn-ghost" onclick="closeModal('postModal')">Cancelar</button>
       <button class="btn-primary" onclick="publishPost()">Publicar</button>
@@ -217,6 +246,34 @@
   </div>
 </div>
 
+<!-- ============ MODAL: STORIES VIEWER ============ -->
+<div class="overlay" id="storyViewer" aria-hidden="true">
+  <div class="card story-viewer">
+    <div class="story-top">
+      <div class="story-tracks" id="storyTracks"></div>
+      <button class="icon-btn" style="width:38px;height:38px;" onclick="closeStory()" title="Fechar">
+        ✕
+      </button>
+    </div>
+
+    <div class="story-stage">
+      <img id="storyImg" src="" alt="Story" />
+      <div class="story-gradient"></div>
+      <div class="story-bottom">
+        <div class="story-name" id="storyName"></div>
+        <div class="story-actions">
+          <button class="btn-ghost" onclick="storyLike()">❤️ Curtir</button>
+        </div>
+      </div>
+
+      <div class="story-nav">
+        <button class="story-nav-btn" onclick="storyPrev()" title="Anterior">‹</button>
+        <button class="story-nav-btn" onclick="storyNext()" title="Próxima">›</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="toast-wrap" id="toastWrap"></div>
 
 <script>
@@ -231,11 +288,29 @@ const state = {
 };
 
 /* ================= DADOS MOCK ================= */
-const NAMES = ["Rafael Souza","Bia Lopes","João Prado","Carla Nunes","Diego Alves","Fernanda Reis","Lucas Martins","Paula Costa"];
+const NAMES = [
+  "Rafael Souza",
+  "Bia Lopes",
+  "João Prado",
+  "Carla Nunes",
+  "Diego Alves",
+  "Fernanda Reis",
+  "Lucas Martins",
+  "Paula Costa",
+  "Mariana Duarte",
+  "Gustavo Lima",
+  "Vitoria Rocha",
+  "Renato Ribeiro",
+];
 function avatar(n){ return `https://i.pravatar.cc/150?img=${n}`; }
 function photo(seed,w=600,h=400){ return `https://picsum.photos/seed/${seed}/${w}/${h}`; }
 
-state.stories = NAMES.slice(0,7).map((name,i)=>({ name, img: avatar(10+i), pulse: 20+Math.round(Math.random()*80) }));
+  state.stories = NAMES.slice(0,7).map((name,i)=>({
+    name,
+    type: 'image',
+    img: avatar(10+i),
+    pulse: 20+Math.round(Math.random()*80),
+  }));
 
 state.posts = [
   { id:1, name:"Rafael Souza", img: avatar(12), time:"2h", text:"Nascer do sol em Búzios hoje. Valeu cada minuto acordado cedo 🌅", media: photo("buzios",700,420), likes:342, comments:[{who:"Bia Lopes",img:avatar(45),text:"Que foto incrível!"}], shares:12, views:"8.4K", liked:false, pulse:78 },
@@ -273,15 +348,51 @@ function renderStories(){
   row.innerHTML = '';
   const add = document.createElement('div');
   add.className = 'story add';
-  add.innerHTML = `<div class="ring" style="--pulse:0"><div class="plus">+</div></div><span>Sua história</span>`;
-  add.onclick = ()=> showToast('Adicionar à sua história');
+  add.innerHTML = `
+    <div class="ring" style="--pulse:0">
+      <div class="plus">+</div>
+    </div>
+    <span>Sua história</span>
+    <input type="file" accept="image/*" style="display:none" />
+  `;
+  const fileInput = add.querySelector('input[type="file"]');
+  add.onclick = () => fileInput.click();
+  fileInput.onchange = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    if(!file.type.startsWith('image/')){
+      showToast('Selecione uma imagem');
+      return;
+    }
+
+    const url = URL.createObjectURL(file);
+const storyObj = {
+      name: 'Sua história',
+      type: 'image',
+      img: url,
+      pulse: 90,
+      views: 0,
+      likes: 0,
+      _local: true,
+    };
+
+    // mantém apenas uma story local do usuário no feed (evita duplicar ao publicar várias vezes)
+    state.stories = state.stories.filter(s => !s._local);
+    state.stories.unshift(storyObj);
+    // mantém quantidade parecida com o mock
+    state.stories = state.stories.slice(0, 12);
+    renderStories();
+    // opcional: abre a story recém adicionada para visualizar 1 por vez
+    openStory(0);
+    showToast('Story adicionada!');
+  };
   row.appendChild(add);
 
-  state.stories.forEach(s=>{
+  state.stories.forEach((s, idx)=>{
     const el = document.createElement('div');
     el.className = 'story';
     el.innerHTML = `<div class="ring" style="--pulse:${s.pulse}"><img src="${s.img}"></div><span>${s.name.split(' ')[0]}</span>`;
-    el.onclick = ()=> showToast(`Vendo a história de ${s.name}`);
+    el.onclick = ()=> openStory(idx);
     row.appendChild(el);
   });
 }
@@ -359,10 +470,120 @@ function sharePost(id){
   renderPosts();
   showToast('Publicação compartilhada no seu perfil');
 }
+function addReelVideo(file, text){
+  // Usa vídeo real (modo reels do instagram: autoplay/loop/muted)
+  const url = URL.createObjectURL(file);
+  state.reels.unshift({
+    name: "Mariana Duarte",
+    img: avatar(32),
+    bg: url,
+    desc: text || 'Meu novo reel 👀',
+    likes: "0",
+    comments: "0",
+    pulse: 80 + Math.round(Math.random()*20),
+    video: true,
+  });
+  renderReels();
+}
+
+function publishReelFromComposer(){
+  const mediaInput = document.getElementById('reelMedia');
+  const textEl = document.getElementById('reelText');
+  const file = mediaInput.files && mediaInput.files[0];
+  const text = (textEl.value || '').trim();
+
+  if(!file){
+    showToast('Selecione um vídeo antes de publicar');
+    return;
+  }
+  if(!file.type || !file.type.startsWith('video/')){
+    showToast('Arquivo inválido. Selecione um vídeo');
+    return;
+  }
+
+  addReelVideo(file, text);
+  mediaInput.value = '';
+  textEl.value = '';
+  showToast('Reel publicado com sucesso!');
+}
+
+function clearReelsComposer(){
+  const mediaInput = document.getElementById('reelMedia');
+  const textEl = document.getElementById('reelText');
+  if(mediaInput) mediaInput.value = '';
+  if(textEl) textEl.value = '';
+  showToast('Composer limpo');
+}
+
+
 function publishPost(){
   const text = document.getElementById('postText').value.trim();
-  if(!text){ showToast('Escreva algo antes de publicar'); return; }
-  state.posts.unshift({ id: Date.now(), name:"Mariana Duarte", img: avatar(32), time:"agora", text, media:null, likes:0, comments:[], shares:0, views:"0", liked:false, pulse:10 });
+  const mediaInput = document.getElementById('postMedia');
+  const file = mediaInput.files && mediaInput.files[0];
+
+  // regras:
+  // - se tiver mídia: permite publicar sem texto
+  // - se não tiver mídia: precisa ter texto
+  if(!file && !text){
+    showToast('Escreva algo ou envie uma mídia antes de publicar');
+    return;
+  }
+
+  if(file){
+    if(file.type.startsWith('image/')){
+      // Foto: entra como post de mídia no feed (e também aparece no perfil)
+      const url = URL.createObjectURL(file);
+      state.posts.unshift({
+        id: Date.now(),
+        name:"Mariana Duarte",
+        img: avatar(32),
+        time:"agora",
+        text: text || ' ',
+        media: url,
+        likes:0,
+        comments:[],
+        shares:0,
+        views:"0",
+        liked:false,
+        pulse:10
+      });
+      closeModal('postModal');
+      document.getElementById('postText').value = '';
+      mediaInput.value = '';
+      renderPosts();
+      showToast('Foto publicada no seu perfil!');
+      return;
+    }
+
+    if(file.type.startsWith('video/')){
+      // Vídeo: entra nos reels (com player real)
+      addReelVideo(file, text);
+      closeModal('postModal');
+      document.getElementById('postText').value = '';
+      mediaInput.value = '';
+      showToast('Vídeo publicado nos seus Reels!');
+      return;
+    }
+
+    showToast('Tipo de arquivo não suportado');
+    return;
+  }
+
+  // sem mídia: post normal de texto
+  state.posts.unshift({
+    id: Date.now(),
+    name:"Mariana Duarte",
+    img: avatar(32),
+    time:"agora",
+    text,
+    media:null,
+    likes:0,
+    comments:[],
+    shares:0,
+    views:"0",
+    liked:false,
+    pulse:10
+  });
   document.getElementById('postText').value = '';
   closeModal('postModal');
   renderPosts();
@@ -371,25 +592,54 @@ function publishPost(){
 
 /* ================= RENDER: REELS ================= */
 function renderReels(){
-  document.getElementById('reelScroll').innerHTML = state.reels.map(r=>`
-    <div class="reel" style="background-image:url('${r.bg}')">
-      <div class="reel-info">
-        <div class="txt">
-          <b>@${r.name.toLowerCase().replace(' ','')}</b>
-          <p>${r.desc}</p>
-        </div>
-        <div class="reel-side">
-          <button onclick="showToast('Curtido!')">❤️</button>
-          <span>${r.likes}</span>
-          <button onclick="showToast('Ver comentários')">💬</button>
-          <span>${r.comments}</span>
-          <button onclick="showToast('Reel compartilhado')">↗️</button>
-          <span>Enviar</span>
+  const reelScroll = document.getElementById('reelScroll');
+  reelScroll.innerHTML = state.reels.map((r, idx) => {
+    const videoHtml = r.video
+      ? `
+        <video
+          class="reel-video"
+          src="${r.bg}"
+          muted
+          loop
+          playsinline
+          preload="metadata"
+          data-reel-index="${idx}"
+        ></video>
+      `
+      : '';
+
+    const bgHtml = r.video
+      ? ''
+      : `style="background-image:url('${r.bg}')"`;
+
+    return `
+      <div class="reel" ${bgHtml}>
+        ${videoHtml}
+        <div class="reel-info">
+          <div class="txt">
+            <b>@${r.name.toLowerCase().replace(' ','')}</b>
+            <p>${r.desc}</p>
+          </div>
+          <div class="reel-side">
+            <button onclick="showToast('Curtido!')">❤️</button>
+            <span>${r.likes}</span>
+            <button onclick="showToast('Ver comentários')">💬</button>
+            <span>${r.comments}</span>
+            <button onclick="showToast('Reel compartilhado')">↗️</button>
+            <span>Enviar</span>
+          </div>
         </div>
       </div>
-    </div>
-  `).join('');
+    `;
+  }).join('');
+
+  // tenta garantir que o primeiro vídeo inicie
+  const firstVid = reelScroll.querySelector('video.reel-video');
+  if(firstVid){
+    try { firstVid.play(); } catch(e) {}
+  }
 }
+
 
 /* ================= VIEWS ================= */
 function switchView(view, btn){
@@ -411,6 +661,62 @@ function toggleTheme(){
 /* ================= MODAIS ================= */
 function openModal(id){ document.getElementById(id).classList.add('open'); }
 function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ================= STORY VIEWER ================= */
+let activeStoryIndex = null;
+function openStory(index){
+  activeStoryIndex = index;
+  const s = state.stories[index];
+  document.getElementById('storyViewer').classList.add('open');
+
+  const img = document.getElementById('storyImg');
+  img.style.display = 'block';
+  img.src = s.img;
+
+  document.getElementById('storyName').textContent = s.name;
+
+  const likeBtn = document.querySelector('#storyViewer .story-actions .btn-ghost');
+  if(likeBtn) likeBtn.textContent = `❤️ Curtir (${s.likes || 0})`;
+  s.views = (s.views || 0) + 1;
+  renderStoryProgress();
+
+  // garante que a story adicionada localmente apareça corretamente
+  document.getElementById('storyViewer').scrollTop = 0;
+}
+
+function storyLike(){
+  if(activeStoryIndex===null) return;
+  const s = state.stories[activeStoryIndex];
+  s.likes = (s.likes || 0) + 1;
+  openStory(activeStoryIndex);
+}
+function closeStory(){
+  activeStoryIndex = null;
+  document.getElementById('storyViewer').classList.remove('open');
+}
+function renderStoryProgress(){
+  const tracks = document.getElementById('storyTracks');
+  tracks.innerHTML = state.stories.map((_, i)=>{
+    const cls = i === activeStoryIndex ? 'active' : '';
+    return `<span class="seg ${cls}"></span>`;
+  }).join('');
+}
+function storyPrev(){
+  if(activeStoryIndex===null) return;
+  const next = (activeStoryIndex - 1 + state.stories.length) % state.stories.length;
+  openStory(next);
+}
+function storyNext(){
+  if(activeStoryIndex===null) return;
+  const next = (activeStoryIndex + 1) % state.stories.length;
+  openStory(next);
+}
+
+function storyAutoAdvance(){
+  // avanço 1 por vez (visualização sequencial)
+  storyNext();
+}
+
 
 /* ================= CHAT ================= */
 function renderChatList(){
@@ -434,6 +740,27 @@ function renderChatList(){
 }
 function toggleChat(){
   document.getElementById('chatPanel').classList.toggle('open');
+}
+
+// entrada rápida no chat-panel
+function quickChatReply(){
+  if(state.activeChat===null) return;
+  const c = state.chats[state.activeChat];
+  // cria conversa humana simulada
+  const replies = [
+    'Entendi 😄',
+    'Você tem razão!',
+    'Bora combinar algo?',
+    'Kkkk boa',
+    'Manda mais detalhes pra mim',
+    'Que ideia boa!',
+    'Depois eu te respondo com calma',
+  ];
+  const pick = replies[Math.floor(Math.random()*replies.length)];
+  c.messages.push({who:'in', text: pick});
+  c.last = pick;
+  renderMessages();
+  renderChatList();
 }
 function openConversation(i){
   state.activeChat = i;
