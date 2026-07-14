@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pulsa — sua rede, seu ritmo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+</head>
+<body>
+
+<!-- ============ TOPBAR ============ -->
+<div class="topbar">
+  <div class="logo"><span class="dot"></span>Malware</div>
+  <div class="search">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input placeholder="Buscar pessoas, posts ou #tendências">
+  </div>
+  <div class="top-actions">
+    <button class="icon-btn" onclick="switchView('feed')" title="Início">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+    </button>
+    <button class="icon-btn" onclick="toggleChat()" title="Mensagens">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span class="badge">3</span>
+    </button>
+    <button class="icon-btn" onclick="showToast('Você não tem notificações novas')" title="Notificações">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="badge">5</span>
+    </button>
+    <button class="icon-btn" id="themeBtn" onclick="toggleTheme()" title="Alternar tema">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+    </button>
+    <a class="top-profile" href="javascript:void(0)" onclick="switchView('profile')">
+      <img src="https://i.pravatar.cc/100?img=32" alt="Meu perfil">
+    </a>
+  </div>
+</div>
+
+<!-- ============ LAYOUT ============ -->
+<div class="layout">
+
+  <!-- SIDEBAR ESQUERDA -->
+  <aside class="sidebar-left">
+    <button class="nav-item active" data-view="feed" onclick="switchView('feed', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+      <span>Início</span>
+    </button>
+    <button class="nav-item" data-view="reels" onclick="switchView('reels', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 8l6 4-6 4z"/></svg>
+      <span>Reels</span>
+    </button>
+    <button class="nav-item" data-view="profile" onclick="switchView('profile', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+      <span>Perfil</span>
+    </button>
+    <button class="nav-item" data-view="monet" onclick="switchView('monet', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1v22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      <span>Monetização</span>
+    </button>
+    <button class="nav-item" onclick="toggleChat()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      <span>Chat</span>
+    </button>
+    <div class="card mini-stats">
+      <h4>Seu pulso hoje</h4>
+      <div class="mini-stat-row"><span>Visualizações</span><b style="color:var(--accent-2)">12.4K</b></div>
+      <div class="mini-stat-row"><span>Novos seguidores</span><b style="color:var(--accent)">+284</b></div>
+      <div class="mini-stat-row"><span>Engajamento</span><b>8.7%</b></div>
+    </div>
+  </aside>
+
+  <!-- FEED CENTRAL -->
+  <main class="feed">
+
+    <!-- VIEW: FEED -->
+    <section class="view active" id="view-feed">
+      <div class="card stories" id="storiesRow"></div>
+
+      <div class="card composer">
+        <img src="https://i.pravatar.cc/100?img=32" alt="">
+        <button class="fake-input" onclick="openModal('postModal')">No que você está pensando?</button>
+      </div>
+
+      <div id="postsList"></div>
+    </section>
+
+    <!-- VIEW: REELS -->
+    <section class="view" id="view-reels">
+      <div class="reels-wrap">
+        <div class="reel-scroll" id="reelScroll"></div>
+      </div>
+    </section>
+
+    <!-- VIEW: PERFIL -->
+    <section class="view" id="view-profile">
+      <div class="cover" style="background-image:url('https://picsum.photos/seed/pulsacover/900/300')"></div>
+      <div class="card" style="padding-bottom:6px;">
+        <div class="profile-head">
+          <img class="avatar" src="https://i.pravatar.cc/200?img=32" alt="">
+          <div>
+            <h2>Mariana Duarte</h2>
+            <p>@marianaduarte · Criadora de conteúdo · Rio de Janeiro</p>
+          </div>
+          <button class="follow-btn" onclick="this.textContent=this.textContent==='Seguindo'?'Seguir':'Seguindo'">Seguindo</button>
+        </div>
+        <div class="profile-stats">
+          <div><b>312</b><span>Publicações</span></div>
+          <div><b>48.2K</b><span>Seguidores</span></div>
+          <div><b>612</b><span>Seguindo</span></div>
+          <div><b>1.1M</b><span>Visualizações</span></div>
+        </div>
+      </div>
+      <div id="profilePosts"></div>
+    </section>
+
+    <!-- VIEW: MONETIZAÇÃO -->
+    <section class="view" id="view-monet">
+      <div class="card" style="padding:18px;">
+        <h3 style="margin-bottom:14px;">Painel do criador</h3>
+        <div class="stat-grid">
+          <div class="card stat-card"><div class="label">Ganhos estimados</div><div class="value">R$ 3.240</div><div class="delta">▲ 12% esta semana</div></div>
+          <div class="card stat-card"><div class="label">Visualizações totais</div><div class="value">1.1M</div><div class="delta">▲ 8% esta semana</div></div>
+          <div class="card stat-card"><div class="label">Seguidores</div><div class="value">48.2K</div><div class="delta">▲ 284 hoje</div></div>
+        </div>
+      </div>
+      <div class="card" style="padding:18px;">
+        <h3 style="margin-bottom:6px;">Desempenho por formato</h3>
+        <div class="bar-row"><span class="label">Reels</span><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><span class="num">82%</span></div>
+        <div class="bar-row"><span class="label">Posts</span><div class="bar-track"><div class="bar-fill" style="width:54%"></div></div><span class="num">54%</span></div>
+        <div class="bar-row"><span class="label">Stories</span><div class="bar-track"><div class="bar-fill" style="width:38%"></div></div><span class="num">38%</span></div>
+        <div class="bar-row"><span class="label">Fotos</span><div class="bar-track"><div class="bar-fill" style="width:29%"></div></div><span class="num">29%</span></div>
+      </div>
+      <div class="card" style="padding:18px;">
+        <h3 style="margin-bottom:10px;">Metas para o próximo nível</h3>
+        <div class="bar-row"><span class="label">100K seguidores</span><div class="bar-track"><div class="bar-fill" style="width:48%"></div></div><span class="num">48.2K</span></div>
+        <div class="bar-row"><span class="label">2M visualizações</span><div class="bar-track"><div class="bar-fill" style="width:55%"></div></div><span class="num">1.1M</span></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- SIDEBAR DIREITA -->
+  <aside class="sidebar-right">
+    <div class="card panel">
+      <h3>Em alta agora</h3>
+      <div class="trend"><span class="tag">#VerãoNoRio</span><span class="count">14.2K posts</span></div>
+      <div class="trend"><span class="tag">#NovaMúsica</span><span class="count">9.8K posts</span></div>
+      <div class="trend"><span class="tag">#TechBrasil</span><span class="count">6.1K posts</span></div>
+      <div class="trend"><span class="tag">#ReceitaFácil</span><span class="count">3.4K posts</span></div>
+    </div>
+    <div class="card panel">
+      <h3>Contatos</h3>
+      <div class="contact"><img src="https://i.pravatar.cc/100?img=12"><span>Rafael Souza</span><span class="dot-online"></span></div>
+      <div class="contact"><img src="https://i.pravatar.cc/100?img=45"><span>Bia Lopes</span><span class="dot-online"></span></div>
+      <div class="contact"><img src="https://i.pravatar.cc/100?img=25"><span>João Prado</span></div>
+      <div class="contact"><img src="https://i.pravatar.cc/100?img=8"><span>Carla Nunes</span><span class="dot-online"></span></div>
+    </div>
+  </aside>
+</div>
+
+<!-- ============ CHAT WIDGET ============ -->
+<button class="chat-launcher" onclick="toggleChat()">
+  <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+</button>
+
+<div class="chat-panel card" id="chatPanel">
+  <div class="head">Conversas <button class="icon-btn" style="width:28px;height:28px;" onclick="toggleChat()">✕</button></div>
+  <div class="chat-list" id="chatList"></div>
+</div>
+
+<div class="conversation card" id="conversation">
+  <div class="head">
+    <img id="convAvatar" src="">
+    <b id="convName" style="font-size:13.5px;"></b>
+    <div class="call-icons">
+      <button onclick="startCall('voz')" title="Ligação de voz">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 3a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.2-1.3a2 2 0 0 1 2.1-.5c1 .3 2 .5 3 .7a2 2 0 0 1 1.7 2z"/></svg>
+      </button>
+      <button onclick="startCall('vídeo')" title="Chamada de vídeo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg>
+      </button>
+      <button onclick="toggleConversation(false)">✕</button>
+    </div>
+  </div>
+  <div class="msgs" id="msgs"></div>
+  <div class="msg-input">
+    <input id="msgInput" placeholder="Escreva uma mensagem..." onkeydown="if(event.key==='Enter')sendMessage()">
+    <button onclick="sendMessage()">Enviar</button>
+  </div>
+</div>
+
+<!-- ============ MODAL: CRIAR POST ============ -->
+<div class="overlay" id="postModal">
+  <div class="card modal">
+    <h3>Criar publicação</h3>
+    <textarea id="postText" placeholder="Compartilhe algo com sua rede..."></textarea>
+    <div class="row">
+      <button class="btn-ghost" onclick="closeModal('postModal')">Cancelar</button>
+      <button class="btn-primary" onclick="publishPost()">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: CHAMADA ============ -->
+<div class="overlay" id="callModal">
+  <div class="card call-modal">
+    <img id="callAvatar" src="">
+    <h3 id="callName"></h3>
+    <p class="status" id="callStatus">Chamando...</p>
+    <div class="call-actions">
+      <button class="call-hangup" onclick="endCall()" title="Encerrar">
+        <svg viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 3a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.2-1.3a2 2 0 0 1 2.1-.5c1 .3 2 .5 3 .7a2 2 0 0 1 1.7 2z" transform="rotate(135 12 12)"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+/* ================= ESTADO EM MEMÓRIA (sem localStorage) ================= */
+const state = {
+  theme: 'dark',
+  posts: [],
+  stories: [],
+  reels: [],
+  chats: [],
+  activeChat: null,
+};
+
+/* ================= DADOS MOCK ================= */
+const NAMES = ["Rafael Souza","Bia Lopes","João Prado","Carla Nunes","Diego Alves","Fernanda Reis","Lucas Martins","Paula Costa"];
+function avatar(n){ return `https://i.pravatar.cc/150?img=${n}`; }
+function photo(seed,w=600,h=400){ return `https://picsum.photos/seed/${seed}/${w}/${h}`; }
+
+state.stories = NAMES.slice(0,7).map((name,i)=>({ name, img: avatar(10+i), pulse: 20+Math.round(Math.random()*80) }));
+
+state.posts = [
+  { id:1, name:"Rafael Souza", img: avatar(12), time:"2h", text:"Nascer do sol em Búzios hoje. Valeu cada minuto acordado cedo 🌅", media: photo("buzios",700,420), likes:342, comments:[{who:"Bia Lopes",img:avatar(45),text:"Que foto incrível!"}], shares:12, views:"8.4K", liked:false, pulse:78 },
+  { id:2, name:"Bia Lopes", img: avatar(45), time:"4h", text:"Comecei a série sobre produtividade pro trabalho remoto. Reels chegando essa semana 👀", media:null, likes:128, comments:[], shares:4, views:"3.1K", liked:false, pulse:52 },
+  { id:3, name:"Diego Alves", img: avatar(30), time:"6h", text:"Testando a nova receita de risoto de limão siciliano. Ficou surpreendentemente bom.", media: photo("risoto",700,420), likes:512, comments:[{who:"Carla Nunes",img:avatar(8),text:"Me manda a receita!!"},{who:"João Prado",img:avatar(25),text:"Isso parece divino"}], shares:31, views:"14.9K", liked:true, pulse:91 },
+  { id:4, name:"Fernanda Reis", img: avatar(20), time:"9h", text:"Semana de estudos intensos. Quem mais tá na correria dos exames?", media:null, likes:64, comments:[], shares:2, views:"1.6K", liked:false, pulse:30 },
+];
+
+state.reels = [
+  { name:"Bia Lopes", img: avatar(45), bg: photo("reel1",340,560), desc:"3 hábitos que mudaram minha rotina de trabalho", likes:"12.4K", comments:"842", pulse:88 },
+  { name:"Diego Alves", img: avatar(30), bg: photo("reel2",340,560), desc:"Risoto de limão siciliano em 4 passos", likes:"31.2K", comments:"1.9K", pulse:96 },
+  { name:"João Prado", img: avatar(25), bg: photo("reel3",340,560), desc:"Timelapse do nascer do sol em Búzios", likes:"7.8K", comments:"310", pulse:64 },
+];
+
+state.chats = [
+  { name:"Rafael Souza", img: avatar(12), last:"Bora marcar aquele café?", online:true, messages:[
+      {who:'in', text:"E aí! Vi seu post do nascer do sol, ficou demais"},
+      {who:'out', text:"Valeu! Acordei 5h da manhã pra isso 😅"},
+      {who:'in', text:"Bora marcar aquele café?"},
+    ]},
+  { name:"Bia Lopes", img: avatar(45), last:"Manda o link do reel!", online:true, messages:[
+      {who:'in', text:"Vi que você vai postar sobre produtividade"},
+      {who:'out', text:"Sim! Sai essa semana"},
+      {who:'in', text:"Manda o link do reel!"},
+    ]},
+  { name:"João Prado", img: avatar(25), last:"Combinado então 👍", online:false, messages:[
+      {who:'out', text:"Fechou pra sexta-feira"},
+      {who:'in', text:"Combinado então 👍"},
+    ]},
+];
+
+/* ================= RENDER: STORIES ================= */
+function renderStories(){
+  const row = document.getElementById('storiesRow');
+  row.innerHTML = '';
+  const add = document.createElement('div');
+  add.className = 'story add';
+  add.innerHTML = `<div class="ring" style="--pulse:0"><div class="plus">+</div></div><span>Sua história</span>`;
+  add.onclick = ()=> showToast('Adicionar à sua história');
+  row.appendChild(add);
+
+  state.stories.forEach(s=>{
+    const el = document.createElement('div');
+    el.className = 'story';
+    el.innerHTML = `<div class="ring" style="--pulse:${s.pulse}"><img src="${s.img}"></div><span>${s.name.split(' ')[0]}</span>`;
+    el.onclick = ()=> showToast(`Vendo a história de ${s.name}`);
+    row.appendChild(el);
+  });
+}
+
+/* ================= RENDER: POSTS ================= */
+function postTemplate(p){
+  return `
+  <article class="card post" data-id="${p.id}">
+    <div class="post-head">
+      <div class="ring" style="--pulse:${p.pulse}"><img src="${p.img}"></div>
+      <div class="who">
+        <span class="name">${p.name}</span>
+        <span class="meta">${p.time} · público</span>
+      </div>
+      <span class="views">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>
+        ${p.views}
+      </span>
+    </div>
+    <div class="post-body">${p.text}</div>
+    ${p.media ? `<div class="post-media"><img src="${p.media}"></div>` : ''}
+    <div class="post-stats">
+      <span>❤️ ${p.likes} curtidas</span>
+      <span>${p.comments.length} comentários · ${p.shares} compartilhamentos</span>
+    </div>
+    <div class="post-actions">
+      <button class="${p.liked?'liked':''}" onclick="toggleLike(${p.id})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        Curtir
+      </button>
+      <button onclick="toggleComments(${p.id})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Comentar
+      </button>
+      <button onclick="sharePost(${p.id})">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><path d="M16 6l-4-4-4 4"/><path d="M12 2v14"/></svg>
+        Compartilhar
+      </button>
+    </div>
+    <div class="comments" id="comments-${p.id}">
+      ${p.comments.map(c=>`<div class="comment"><img src="${c.img}"><div class="bubble"><b>${c.who}</b>${c.text}</div></div>`).join('')}
+      <div class="comment-input">
+        <input placeholder="Escreva um comentário..." onkeydown="if(event.key==='Enter')addComment(${p.id}, this)">
+        <button onclick="addComment(${p.id}, this.previousElementSibling)">Enviar</button>
+      </div>
+    </div>
+  </article>`;
+}
+
+function renderPosts(){
+  document.getElementById('postsList').innerHTML = state.posts.map(postTemplate).join('');
+  document.getElementById('profilePosts').innerHTML = state.posts.slice(0,2).map(postTemplate).join('');
+}
+
+function toggleLike(id){
+  const p = state.posts.find(x=>x.id===id);
+  p.liked = !p.liked;
+  p.likes += p.liked ? 1 : -1;
+  renderPosts();
+}
+function toggleComments(id){
+  document.querySelectorAll(`#comments-${id}`).forEach(el=>el.classList.toggle('open'));
+}
+function addComment(id, inputEl){
+  const text = inputEl.value.trim();
+  if(!text) return;
+  const p = state.posts.find(x=>x.id===id);
+  p.comments.push({ who:"Mariana Duarte", img: avatar(32), text });
+  renderPosts();
+  document.querySelectorAll(`#comments-${id}`).forEach(el=>el.classList.add('open'));
+}
+function sharePost(id){
+  const p = state.posts.find(x=>x.id===id);
+  p.shares += 1;
+  renderPosts();
+  showToast('Publicação compartilhada no seu perfil');
+}
+function publishPost(){
+  const text = document.getElementById('postText').value.trim();
+  if(!text){ showToast('Escreva algo antes de publicar'); return; }
+  state.posts.unshift({ id: Date.now(), name:"Mariana Duarte", img: avatar(32), time:"agora", text, media:null, likes:0, comments:[], shares:0, views:"0", liked:false, pulse:10 });
+  document.getElementById('postText').value = '';
+  closeModal('postModal');
+  renderPosts();
+  showToast('Publicação criada com sucesso!');
+}
+
+/* ================= RENDER: REELS ================= */
+function renderReels(){
+  document.getElementById('reelScroll').innerHTML = state.reels.map(r=>`
+    <div class="reel" style="background-image:url('${r.bg}')">
+      <div class="reel-info">
+        <div class="txt">
+          <b>@${r.name.toLowerCase().replace(' ','')}</b>
+          <p>${r.desc}</p>
+        </div>
+        <div class="reel-side">
+          <button onclick="showToast('Curtido!')">❤️</button>
+          <span>${r.likes}</span>
+          <button onclick="showToast('Ver comentários')">💬</button>
+          <span>${r.comments}</span>
+          <button onclick="showToast('Reel compartilhado')">↗️</button>
+          <span>Enviar</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+/* ================= VIEWS ================= */
+function switchView(view, btn){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  else { const match = document.querySelector(`.nav-item[data-view="${view}"]`); if(match) match.classList.add('active'); }
+}
+
+/* ================= TEMA ================= */
+function toggleTheme(){
+  const html = document.documentElement;
+  state.theme = state.theme === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', state.theme);
+  showToast(state.theme === 'dark' ? 'Tema escuro ativado' : 'Tema claro ativado');
+}
+
+/* ================= MODAIS ================= */
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+
+/* ================= CHAT ================= */
+function renderChatList(){
+  document.getElementById('chatList').innerHTML = state.chats.map((c,i)=>`
+    <div class="item" onclick="openConversation(${i})">
+      <img src="${c.img}">
+      <div>
+        <div class="name">${c.name}</div>
+        <div class="last">${c.last}</div>
+      </div>
+      <div class="call-icons" onclick="event.stopPropagation()">
+        <button onclick="openConversation(${i}); startCall('voz')" title="Ligar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6-6 19.8 19.8 0 0 1-3-8.7A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 2 .7 3a2 2 0 0 1-.5 2.1L8 10a16 16 0 0 0 6 6l1.2-1.3a2 2 0 0 1 2.1-.5c1 .3 2 .5 3 .7a2 2 0 0 1 1.7 2z"/></svg>
+        </button>
+        <button onclick="openConversation(${i}); startCall('vídeo')" title="Vídeo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="14" height="12" rx="2"/><path d="M22 8l-6 4 6 4V8z"/></svg>
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleChat(){
+  document.getElementById('chatPanel').classList.toggle('open');
+}
+function openConversation(i){
+  state.activeChat = i;
+  const c = state.chats[i];
+  document.getElementById('convAvatar').src = c.img;
+  document.getElementById('convName').textContent = c.name;
+  renderMessages();
+  document.getElementById('conversation').classList.add('open');
+}
+function toggleConversation(force){
+  document.getElementById('conversation').classList.toggle('open', force);
+}
+function renderMessages(){
+  const c = state.chats[state.activeChat];
+  document.getElementById('msgs').innerHTML = c.messages.map(m=>`<div class="msg ${m.who}">${m.text}</div>`).join('');
+  const box = document.getElementById('msgs');
+  box.scrollTop = box.scrollHeight;
+}
+function sendMessage(){
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if(!text || state.activeChat===null) return;
+  const c = state.chats[state.activeChat];
+  c.messages.push({who:'out', text});
+  c.last = text;
+  input.value = '';
+  renderMessages();
+  renderChatList();
+  setTimeout(()=>{
+    c.messages.push({who:'in', text:"👍"});
+    renderMessages();
+  }, 900);
+}
+
+/* ================= CHAMADAS ================= */
+let callTimer = null;
+function startCall(tipo){
+  if(state.activeChat===null) return;
+  const c = state.chats[state.activeChat];
+  document.getElementById('callAvatar').src = c.img;
+  document.getElementById('callName').textContent = c.name;
+  document.getElementById('callStatus').textContent = `Chamada de ${tipo}... chamando`;
+  document.getElementById('callStatus').classList.remove('live');
+  openModal('callModal');
+  callTimer = setTimeout(()=>{
+    document.getElementById('callStatus').textContent = `Em chamada de ${tipo} · 00:0${Math.floor(Math.random()*9)}`;
+    document.getElementById('callStatus').classList.add('live');
+  }, 1600);
+}
+function endCall(){
+  clearTimeout(callTimer);
+  closeModal('callModal');
+  showToast('Chamada encerrada');
+}
+
+/* ================= TOAST ================= */
+function showToast(text){
+  const wrap = document.getElementById('toastWrap');
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = text;
+  wrap.appendChild(t);
+  setTimeout(()=> t.remove(), 2600);
+}
+
+/* ================= INIT ================= */
+renderStories();
+renderPosts();
+renderReels();
+renderChatList();
+</script>
+</body>
+</html>
